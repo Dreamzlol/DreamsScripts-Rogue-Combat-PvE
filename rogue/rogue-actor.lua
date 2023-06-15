@@ -2,7 +2,7 @@ local Unlocker, awful, DreamsScriptsCombatPvE = ...
 local combat = DreamsScriptsCombatPvE.rogue.combat
 local player = awful.player
 
-if awful.player.class2 ~= "ROGUE" then return end
+if not awful.player.class2 == "ROGUE" then return end
 
 awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Combat PvE Loaded!")
 awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Version: 1.0.0")
@@ -16,6 +16,7 @@ combat:Init(function()
     end
 
     auto_attack()
+    kick()
 
     -- AoE Rotation
     blade_flurry("aoe")

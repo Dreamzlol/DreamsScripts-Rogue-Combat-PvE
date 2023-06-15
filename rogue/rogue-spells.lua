@@ -24,11 +24,10 @@ awful.Populate({
 local Draw = awful.Draw
 Draw(function(draw)
     local px, py, pz = target.position()
-    local pAngle = target.rotation
-    if not pAngle then return end
-    if not px or not py or not pz then return end
+    local targetRotation = target.rotation
+    if not px or not target.enemy then return end
 
-    local arcRotation = pAngle - math.pi
+    local arcRotation = targetRotation - math.pi
 
     arcRotation = (arcRotation + 2 * math.pi) % (2 * math.pi)
     draw:SetWidth(2)
@@ -79,7 +78,7 @@ end)
 kick:Callback(function(spell)
     return target.exists
         and target.casting
-        and target.castint
+        and target.castInt
         and spell:Cast(target)
         and awful.alert(spell.name, spell.id)
 end)
