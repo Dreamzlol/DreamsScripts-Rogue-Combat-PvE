@@ -23,9 +23,17 @@ awful.Populate({
 
 local Draw = awful.Draw
 Draw(function(draw)
-    local px, py, pz = player.position()
-    draw:SetColor(255, 255, 255, 50)
-    draw:Circle(px, py, pz, 5)
+    local px, py, pz = target.position()
+    local pAngle = target.rotation
+    if not pAngle then return end
+    if not px or not py or not pz then return end
+
+    local arcRotation = pAngle - math.pi
+
+    arcRotation = (arcRotation + 2 * math.pi) % (2 * math.pi)
+    draw:SetWidth(2)
+    draw:SetColor(255, 255, 255, 30)
+    draw:Arc(px, py, pz, 5, 180, arcRotation)
 end)
 
 local function unitFilter(obj)
@@ -43,6 +51,7 @@ engineer_gloves:Callback(function(spell)
         and target.meleeRange
         and target.level == -1
         and useInventoryItem()
+        and awful.alert(spell.name, spell.id)
 end)
 
 auto_attack:Callback(function(spell)
@@ -56,12 +65,14 @@ blade_flurry:Callback("aoe", function(spell)
     return target.exists
         and awful.enemies.around(player, 5, unitFilter) >= 2
         and spell:Cast()
+        and awful.alert(spell.name, spell.id)
 end)
 
 fan_of_knives:Callback("aoe", function(spell)
     return target.exists
         and awful.enemies.around(player, 8, unitFilter) >= 3
         and spell:Cast()
+        and awful.alert(spell.name, spell.id)
 end)
 
 -- Single Target Rotation
@@ -70,6 +81,7 @@ kick:Callback(function(spell)
         and target.casting
         and target.castint
         and spell:Cast(target)
+        and awful.alert(spell.name, spell.id)
 end)
 
 slice_and_dice:Callback(function(spell)
@@ -77,48 +89,62 @@ slice_and_dice:Callback(function(spell)
         and target.cp() >= 1
         and player.buffRemains("Slice and Dice") <= 2
         and spell:Cast()
+        and awful.alert(spell.name, spell.id)
 end)
 
 tricks_of_the_trade:Callback(function(spell)
     return focus.exists
         and target.exists
         and spell:Cast(focus)
+        and awful.alert(spell.name, spell.id)
 end)
 
 sinister_strike:Callback(function(spell)
-    return target.exists
-        and target.cp() < 5
-        and spell:Cast(target)
+    if target.exists and target.cp() == 5 and player.energy >= 100 then
+        spell:Cast(target)
+    end
+
+    if target.exists and target.cp() < 5 then
+        spell:Cast(target)
+        awful.alert(spell.name, spell.id)
+        return
+    end
 end)
 
 feint:Callback(function(spell)
     return target.exists
+        and player.hasGlyph("Glyph of Feint")
         and target.meleeRange
         and spell:Cast(target)
+        and awful.alert(spell.name, spell.id)
 end)
 
 rupture:Callback(function(spell)
     return target.exists
         and target.cp() >= 5
         and target.debuffRemains("Rupture") <= 4
+        and (player.buffRemains("Slice and Dice") >= 2 or player.buffRemains("Expose Armor") >= 2)
         and spell:Cast(target)
+        and awful.alert(spell.name, spell.id)
 end)
 
 expose_armor:Callback(function(spell)
     return target.exists
         and player.hasGlyph("Glyph of Expose Armor")
         and target.cp() >= 1
-        and target.debuffRemains("Expose Armor") <= 1
+        and target.debuffRemains("Expose Armor") <= 2
         and spell:Cast(target)
+        and awful.alert(spell.name, spell.id)
 end)
 
 adrenaline_rush:Callback(function(spell)
     return target.exists
         and target.meleeRange
         and target.level == -1
-        and player.energy < 45
+        and player.energy <= 20
         and player.buffRemains("Slice and Dice") >= 2
         and spell:Cast()
+        and awful.alert(spell.name, spell.id)
 end)
 
 blade_flurry:Callback(function(spell)
@@ -127,6 +153,7 @@ blade_flurry:Callback(function(spell)
         and target.level == -1
         and player.buffRemains("Slice and Dice") >= 2
         and spell:Cast()
+        and awful.alert(spell.name, spell.id)
 end)
 
 killing_spree:Callback(function(spell)
@@ -136,10 +163,5 @@ killing_spree:Callback(function(spell)
         and player.energy < 60
         and player.buffRemains("Slice and Dice") >= 2
         and spell:Cast(target)
-end)
-
-eviscerate:Callback(function(spell)
-    return target.exists
-        and target.cp() == 5
-        and spell:Cast(target)
+        and awful.alert(spell.name, spell.id)
 end)

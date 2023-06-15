@@ -2,11 +2,9 @@ local Unlocker, awful, DreamsScriptsCombatPvE = ...
 local combat = DreamsScriptsCombatPvE.rogue.combat
 local player = awful.player
 
-awful.DevMode = true
 if awful.player.class2 ~= "ROGUE" then return end
 
 awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Combat PvE Loaded!")
---awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Open the GUI anytime with /ds")
 awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Version: 1.0.0")
 
 combat:Init(function()
@@ -23,10 +21,9 @@ combat:Init(function()
     blade_flurry("aoe")
     fan_of_knives("aoe")
     -- Single Target Rotation
+    rupture()
     slice_and_dice()
     expose_armor()
-    rupture()
-    -- eviscerate()
     blade_flurry()
     killing_spree()
     engineer_gloves()
