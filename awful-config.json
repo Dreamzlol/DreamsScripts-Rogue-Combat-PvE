@@ -1,0 +1,7 @@
+{
+    "load": [
+        "DreamsScriptsCombatPvE",
+        "rogue/rogue-actor",
+        "rogue/rogue-spells"
+    ]
+}
