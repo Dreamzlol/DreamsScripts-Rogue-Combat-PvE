@@ -1,6 +1,8 @@
 local Unlocker, awful, DreamsScriptsCombatPvE = ...
 local combat = DreamsScriptsCombatPvE.rogue.combat
 
+if awful.player.class2 ~= "ROGUE" then return end
+
 local Spell = awful.Spell
 local player, target, focus = awful.player, awful.target, awful.focus
 
