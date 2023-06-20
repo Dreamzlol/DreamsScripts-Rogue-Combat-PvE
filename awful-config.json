@@ -1,6 +1,7 @@
 {
     "load": [
         "DreamsScriptsCombatPvE",
+        "gui",
         "rogue/rogue-actor",
         "rogue/rogue-spells"
     ]

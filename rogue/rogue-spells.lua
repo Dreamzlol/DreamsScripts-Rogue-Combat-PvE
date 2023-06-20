@@ -63,7 +63,8 @@ end)
 
 -- AoE Rotation
 blade_flurry:Callback("aoe", function(spell)
-    return target.exists
+    return DreamsScriptsCombatPvE.settings.usebladeflurry
+    and target.exists
         and awful.enemies.around(player, 5, unitFilter) >= 2
         and spell:Cast()
         and awful.alert(spell.name, spell.id)
@@ -78,7 +79,8 @@ end)
 
 -- Single Target Rotation
 kick:Callback(function(spell)
-    return target.exists
+    return DreamsScriptsCombatPvE.settings.usekick
+        and target.exists
         and target.casting
         and target.castInt
         and spell:Cast(target)
@@ -149,7 +151,8 @@ adrenaline_rush:Callback(function(spell)
 end)
 
 blade_flurry:Callback(function(spell)
-    return target.exists
+    return DreamsScriptsCombatPvE.settings.usebladeflurry
+        and target.exists
         and target.meleeRange
         and target.level == -1
         and player.buffRemains("Slice and Dice") >= 2
