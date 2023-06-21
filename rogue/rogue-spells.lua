@@ -79,7 +79,8 @@ end)
 
 -- Single Target Rotation
 kick:Callback(function(spell)
-    return target.exists
+    return DreamsScriptsCombatPvE.settings.usekick
+        and target.exists
         and target.casting
         and target.castInt
         and spell:Cast(target)
