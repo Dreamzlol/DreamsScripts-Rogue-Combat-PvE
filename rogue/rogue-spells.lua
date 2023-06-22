@@ -81,8 +81,7 @@ end)
 kick:Callback(function(spell)
     return DreamsScriptsCombatPvE.settings.usekick
         and target.exists
-        and target.casting
-        and target.castInt
+        and target.casting8
         and spell:Cast(target)
         and awful.alert(spell.name, spell.id)
 end)
