@@ -7,20 +7,20 @@ local Spell = awful.Spell
 local player, target, focus = awful.player, awful.target, awful.focus
 
 awful.Populate({
-    blade_flurry = Spell(13877),
-    fan_of_knives = Spell(51723),
-    slice_and_dice = Spell(6774),
-    sinister_strike = Spell(48638),
-    eviscerate = Spell(48668),
-    rupture = Spell(48672),
-    adrenaline_rush = Spell(13750),
-    kick = Spell(1766),
-    killing_spree = Spell(51690),
-    expose_armor = Spell(8647),
+    blade_flurry        = Spell(13877),
+    fan_of_knives       = Spell(51723),
+    slice_and_dice      = Spell(6774),
+    sinister_strike     = Spell(48638),
+    eviscerate          = Spell(48668),
+    rupture             = Spell(48672),
+    adrenaline_rush     = Spell(13750),
+    kick                = Spell(1766),
+    killing_spree       = Spell(51690),
+    expose_armor        = Spell(8647),
     tricks_of_the_trade = Spell(57934),
-    auto_attack = Spell(6603),
-    engineer_gloves = Spell(6603),
-    feint = Spell(48659)
+    auto_attack         = Spell(6603),
+    engineer_gloves     = Spell(6603),
+    feint               = Spell(48659)
 }, combat, getfenv(1))
 
 local Draw = awful.Draw
@@ -81,7 +81,7 @@ end)
 kick:Callback(function(spell)
     return DreamsScriptsCombatPvE.settings.usekick
         and target.exists
-        and target.casting8
+        and not target.casting9
         and spell:Cast(target)
         and awful.alert(spell.name, spell.id)
 end)
@@ -117,6 +117,7 @@ feint:Callback(function(spell)
     return target.exists
         and player.hasGlyph("Glyph of Feint")
         and target.meleeRange
+        and player.energy < 80
         and spell:Cast(target)
         and awful.alert(spell.name, spell.id)
 end)

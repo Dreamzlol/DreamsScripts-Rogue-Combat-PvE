@@ -21,7 +21,9 @@ combat:Init(function()
     -- AoE Rotation
     blade_flurry("aoe")
     fan_of_knives("aoe")
+
     -- Single Target Rotation
+    feint()
     rupture()
     slice_and_dice()
     expose_armor()
@@ -31,5 +33,4 @@ combat:Init(function()
     adrenaline_rush()
     tricks_of_the_trade()
     sinister_strike()
-    feint()
 end)
