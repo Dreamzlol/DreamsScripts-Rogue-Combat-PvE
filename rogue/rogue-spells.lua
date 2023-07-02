@@ -144,7 +144,7 @@ adrenaline_rush:Callback(function(spell)
     return target.exists
         and target.meleeRange
         and target.level == -1
-        and player.energy <= 20
+        and player.energy <= 40
         and player.buffRemains("Slice and Dice") >= 2
         and spell:Cast()
         and awful.alert(spell.name, spell.id)
