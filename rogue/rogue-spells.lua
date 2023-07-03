@@ -23,6 +23,110 @@ awful.Populate({
     feint               = Spell(48659)
 }, combat, getfenv(1))
 
+local isDungeonBoss = {
+    -- Utgarde Keep
+    ["Prince Keleseth"] = true,
+    ["Skarvald the Constructor"] = true,
+    ["Dalronn the Controller"] = true,
+    ["Ingvar the Plunderer"] = true,
+
+    -- The Nexus
+    ["Commander Kolurg"] = true,
+    ["Commander Stoutbeard"] = true,
+    ["Grand Magus Telestra"] = true,
+    ["Anomalus"] = true,
+    ["Ormorok the Tree-Shaper"] = true,
+    ["Keristasza"] = true,
+
+    -- Ajzol-Nerub
+    ["Krik'thir the Gatewatcher"] = true,
+    ["Hadronox"] = true,
+    ["Anub'arak"] = true,
+
+    -- Ahn'Kahet: The Old Kingdom
+    ["Elder Nadox"] = true,
+    ["Prince Taldaram"] = true,
+    ["Amanitar"] = true,
+    ["Jedoga Shadowseeker"] = true,
+    ["Herald Volazj"] = true,
+
+    -- Drak'Tharon Keep
+    ["Trollgore"] = true,
+    ["Novos the Summoner"] = true,
+    ["King Dred"] = true,
+    ["The Prophet Tharon'ja"] = true,
+
+    -- The Violet Hold
+    ["Erekem"] = true,
+    ["Moragg"] = true,
+    ["Ichoron"] = true,
+    ["Xevozz"] = true,
+    ["Lavanthor"] = true,
+    ["Zuramat the Obliterator"] = true,
+    ["Cyanigosa"] = true,
+
+    -- Gundrak
+    ["Slad'Ran"] = true,
+    ["Drakkari Colossus"] = true,
+    ["Moorabi"] = true,
+    ["Eck the Ferocious"] = true,
+    ["Gal'darah"] = true,
+
+    -- Halls of Stone
+    ["Maiden of Grief"] = true,
+    ["Krystallus"] = true,
+    ["Tribunal of Ages"] = true,
+    ["Sjonnir The Ironshaper"] = true,
+
+    -- Halls of Lightning
+    ["General Bjarngrim"] = true,
+    ["Volkhan"] = true,
+    ["Ionar"] = true,
+    ["Loken"] = true,
+
+    -- The Culling of Stratholme
+    ["Meathook"] = true,
+    ["Salramm the Fleshcrafter"] = true,
+    ["Chrono-Lord Epoch"] = true,
+    ["Mal'Ganis"] = true,
+
+    -- The Oculus
+    ["Drakos the Interrogator"] = true,
+    ["Varos Cloudstrider"] = true,
+    ["Mage-Lord Urom"] = true,
+    ["Ley-Guardian Eregos"] = true,
+
+    -- Utgarde Pinnacle
+    ["Svala Sorrowgrave"] = true,
+    ["Gortok Palehoof"] = true,
+    ["Skadi the Ruthless"] = true,
+    ["King Ymiron"] = true,
+
+    -- Forge of Souls
+    ["Bronjahm"] = true,
+    ["Devourer of Souls"] = true,
+
+    -- Pit of Saron
+    ["Ick & Krick"] = true,
+    ["Forgemaster Garfrost"] = true,
+    ["ScourgeLord Tyrannus"] = true,
+
+    -- Halls of Reflection
+    ["Falric"] = true,
+    ["Marwyn"] = true,
+    ["Escape from Arthas"] = true,
+
+    -- Trial of the Champion
+    ["Grand Champions"] = true,
+    ["Eadric the Pure"] = true,
+    ["Argent Confessor Paletress"] = true,
+    ["The Black Knight"] = true
+}
+
+local function isBoss(unit)
+    return unit.exists and (unit.level == -1 or isDungeonBoss[unit.name])
+end
+
 local Draw = awful.Draw
 Draw(function(draw)
     local px, py, pz = target.position()
@@ -50,7 +154,7 @@ end
 engineer_gloves:Callback(function(spell)
     return target.exists
         and target.meleeRange
-        and target.level == -1
+        and isBoss(target)
         and useInventoryItem()
         and awful.alert(spell.name, spell.id)
 end)
@@ -81,7 +185,7 @@ end)
 kick:Callback(function(spell)
     return DreamsScriptsCombatPvE.settings.usekick
         and target.exists
-        and not target.casting9
+        and target.casting9
         and spell:Cast(target)
         and awful.alert(spell.name, spell.id)
 end)
@@ -143,7 +247,7 @@ end)
 adrenaline_rush:Callback(function(spell)
     return target.exists
         and target.meleeRange
-        and target.level == -1
+        and isBoss(target)
         and player.energy <= 40
         and player.buffRemains("Slice and Dice") >= 2
         and spell:Cast()
@@ -154,7 +258,7 @@ blade_flurry:Callback(function(spell)
     return DreamsScriptsCombatPvE.settings.usebladeflurry
         and target.exists
         and target.meleeRange
-        and target.level == -1
+        and isBoss(target)
         and player.buffRemains("Slice and Dice") >= 2
         and spell:Cast()
         and awful.alert(spell.name, spell.id)
@@ -163,7 +267,7 @@ end)
 killing_spree:Callback(function(spell)
     return target.exists
         and target.meleeRange
-        and target.level == -1
+        and isBoss(target)
         and player.energy < 60
         and player.buffRemains("Slice and Dice") >= 2
         and spell:Cast(target)
