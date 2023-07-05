@@ -124,27 +124,25 @@ local isDungeonBoss = {
 }
 
 local function isBoss(unit)
-    return unit.exists and (unit.level == -1 or isDungeonBoss[unit.name])
+    return unit.enemy and (unit.level == -1 or isDungeonBoss[unit.name])
 end
 
 local Draw = awful.Draw
 Draw(function(draw)
-    local px, py, pz = target.position()
+    local tx, ty, tz = target.position()
     local targetRotation = target.rotation
-    if not px or not target.enemy then return end
+    if not tx or not target.enemy then return end
 
     local arcRotation = targetRotation - math.pi
 
     arcRotation = (arcRotation + 2 * math.pi) % (2 * math.pi)
     draw:SetWidth(2)
     draw:SetColor(255, 255, 255, 30)
-    draw:Arc(px, py, pz, 5, 180, arcRotation)
+    draw:Arc(tx, ty, tz, 5, 180, arcRotation)
 end)
 
 local function unitFilter(obj)
-    return obj.los
-        and obj.exists
-        and not obj.dead
+    return obj.enemy and obj.combat and not obj.dead
 end
 
 local function useInventoryItem()
@@ -152,124 +150,186 @@ local function useInventoryItem()
 end
 
 engineer_gloves:Callback(function(spell)
-    return target.exists
-        and target.meleeRange
-        and isBoss(target)
-        and useInventoryItem()
-        and awful.alert(spell.name, spell.id)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+
+    if isBoss(target) then
+        if useInventoryItem() then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
 end)
 
 auto_attack:Callback(function(spell)
-    return target.exists
-        and not spell.current
-        and spell:Cast()
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+
+    if not spell.current then
+        spell:Cast(target)
+        return
+    end
 end)
 
 -- AoE Rotation
 blade_flurry:Callback("aoe", function(spell)
-    return DreamsScriptsCombatPvE.settings.usebladeflurry
-    and target.exists
-        and awful.enemies.around(player, 5, unitFilter) >= 2
-        and spell:Cast()
-        and awful.alert(spell.name, spell.id)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+    local unit = awful.enemies.around(player, 5, unitFilter)
+
+    if unit >= 2 then
+        if spell:Cast() then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
 end)
 
 fan_of_knives:Callback("aoe", function(spell)
-    return target.exists
-        and awful.enemies.around(player, 8, unitFilter) >= 3
-        and spell:Cast()
-        and awful.alert(spell.name, spell.id)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+    local unit = awful.enemies.around(player, 8, unitFilter)
+
+    if unit >= 3 then
+        if spell:Cast() then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
 end)
 
 -- Single Target Rotation
 kick:Callback(function(spell)
-    return DreamsScriptsCombatPvE.settings.usekick
-        and target.exists
-        and target.casting9
-        and spell:Cast(target)
-        and awful.alert(spell.name, spell.id)
+    if not DreamsScriptsCombatPvE.settings.usekick then return end
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+
+    if target.casting and not target.casting9 then
+        if spell:Cast(target) then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
 end)
 
 slice_and_dice:Callback(function(spell)
-    return target.exists
-        and target.cp() >= 1
-        and player.buffRemains("Slice and Dice") <= 2
-        and spell:Cast()
-        and awful.alert(spell.name, spell.id)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+
+    if target.cp() >= 1 and player.buffRemains("Slice and Dice") <= 2 then
+        if spell:Cast() then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
 end)
 
 tricks_of_the_trade:Callback(function(spell)
-    return focus.exists
-        and target.exists
-        and spell:Cast(focus)
-        and awful.alert(spell.name, spell.id)
-end)
+    if not focus.exists then return end
 
-sinister_strike:Callback(function(spell)
-    if target.exists and target.cp() == 5 and player.energy >= 100 then
-        spell:Cast(target)
-    end
-
-    if target.exists and target.cp() < 5 then
-        spell:Cast(target)
+    if spell:Cast(focus) then
         awful.alert(spell.name, spell.id)
         return
     end
 end)
 
+sinister_strike:Callback(function(spell)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+
+    if target.cp() == 5 and player.energy >= 100 then
+        if spell:Cast(target) then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    elseif target.cp() < 5 then
+        if spell:Cast(target) then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
+end)
+
 feint:Callback(function(spell)
-    return target.exists
-        and player.hasGlyph("Glyph of Feint")
-        and target.meleeRange
-        and player.energy < 80
-        and spell:Cast(target)
-        and awful.alert(spell.name, spell.id)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+    if not player.hasGlyph("Glyph of Feint") then return end
+
+    if player.energy < 80 then
+        if spell:Cast(target) then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
 end)
 
 rupture:Callback(function(spell)
-    return target.exists
-        and target.cp() >= 5
-        and target.debuffRemains("Rupture") <= 4
-        and (player.buffRemains("Slice and Dice") >= 2 or player.buffRemains("Expose Armor") >= 2)
-        and spell:Cast(target)
-        and awful.alert(spell.name, spell.id)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+
+    if target.cp() == 5 then
+        if target.debuffRemains("Rupture") <= 4 and (player.buffRemains("Slice and Dice") >= 2 or player.buffRemains("Expose Armor") >= 2) then
+            if spell:Cast(target) then
+                awful.alert(spell.name, spell.id)
+                return
+            end
+        end
+    end
 end)
 
 expose_armor:Callback(function(spell)
-    return target.exists
-        and player.hasGlyph("Glyph of Expose Armor")
-        and target.cp() >= 1
-        and target.debuffRemains("Expose Armor") <= 2
-        and spell:Cast(target)
-        and awful.alert(spell.name, spell.id)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+    if not player.hasGlyph("Glyph of Expose Armor") then return end
+
+    if target.cp() >= 1 then
+        if target.debuffRemains("Expose Armor") <= 2 then
+            if spell:Cast(target) then
+                awful.alert(spell.name, spell.id)
+                return
+            end
+        end
+    end
 end)
 
 adrenaline_rush:Callback(function(spell)
-    return target.exists
-        and target.meleeRange
-        and isBoss(target)
-        and player.energy <= 40
-        and player.buffRemains("Slice and Dice") >= 2
-        and spell:Cast()
-        and awful.alert(spell.name, spell.id)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+    if not isBoss(target) then return end
+    if player.energy >= 40 then return end
+
+    if player.buffRemains("Slice and Dice") >= 2 then
+        if spell:Cast() then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
 end)
 
 blade_flurry:Callback(function(spell)
-    return DreamsScriptsCombatPvE.settings.usebladeflurry
-        and target.exists
-        and target.meleeRange
-        and isBoss(target)
-        and player.buffRemains("Slice and Dice") >= 2
-        and spell:Cast()
-        and awful.alert(spell.name, spell.id)
+    if not DreamsScriptsCombatPvE.settings.usebladeflurry then return end
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+    if not isBoss(target) then return end
+
+    if player.buffRemains("Slice and Dice") >= 2 then
+        if spell:Cast() then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
 end)
 
 killing_spree:Callback(function(spell)
-    return target.exists
-        and target.meleeRange
-        and isBoss(target)
-        and player.energy < 60
-        and player.buffRemains("Slice and Dice") >= 2
-        and spell:Cast(target)
-        and awful.alert(spell.name, spell.id)
+    if not target.enemy then return end
+    if not target.meleeRange then return end
+    if not isBoss(target) then return end
+    if player.energy > 60 then return end
+
+    if player.buffRemains("Slice and Dice") >= 2 then
+        if spell:Cast(target) then
+            awful.alert(spell.name, spell.id)
+            return
+        end
+    end
 end)
