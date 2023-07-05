@@ -23,10 +23,10 @@ combat:Init(function()
     fan_of_knives("aoe")
 
     -- Single Target Rotation
-    feint()
     rupture()
     slice_and_dice()
     expose_armor()
+    feint()
     tricks_of_the_trade()
     killing_spree()
     blade_flurry()

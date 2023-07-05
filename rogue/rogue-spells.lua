@@ -52,8 +52,9 @@ end
 engineer_gloves:Callback(function(spell)
     if not target.enemy then return end
     if not target.meleeRange then return end
+    local start = GetInventoryItemCooldown("player", 10)
 
-    if isBoss(target) then
+    if isBoss(target) and start == 0 then
         if useInventoryItem() then
             awful.alert(spell.name, spell.id)
             return
@@ -168,7 +169,7 @@ rupture:Callback(function(spell)
     if not target.meleeRange then return end
 
     if target.cp() == 5 then
-        if target.debuffRemains("Rupture") <= 4 and (player.buffRemains("Slice and Dice") >= 2 or player.buffRemains("Expose Armor") >= 2) then
+        if target.debuffRemains("Rupture") <= 4 and (player.buff("Slice and Dice") or player.buff("Expose Armor")) then
             if spell:Cast(target) then
                 awful.alert(spell.name, spell.id)
                 return
