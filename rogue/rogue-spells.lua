@@ -105,7 +105,7 @@ kick:Callback(function(spell)
     if not target.enemy then return end
     if not target.meleeRange then return end
 
-    if target.casting and not target.casting9 then
+    if target.casting and not target.castint then
         if spell:Cast(target) then
             awful.alert(spell.name, spell.id)
             return
