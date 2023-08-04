@@ -5,7 +5,7 @@ local player = awful.player
 if awful.player.class2 ~= "ROGUE" then return end
 
 awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Combat PvE Loaded!")
-awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Version: 1.0.2")
+awful.print("|cffFFFFFFDreams{ |cff00B5FFScripts |cffFFFFFF} - Version: 1.0.3")
 
 combat:Init(function()
     if player.mounted or
@@ -17,6 +17,7 @@ combat:Init(function()
 
     auto_attack()
     kick()
+    riposte()
 
     -- AoE Rotation
     blade_flurry("aoe")
