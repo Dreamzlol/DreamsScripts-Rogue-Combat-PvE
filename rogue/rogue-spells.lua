@@ -96,7 +96,7 @@ kick:Callback(function(spell)
     if not DreamsScriptsCombatPvE.settings.usekick then
         return
     end
-    
+
     if target.casting and not target.castint then
         if spell:Cast(target) then
             awful.alert(spell.name, spell.id)
@@ -206,7 +206,11 @@ killing_spree:Callback(function(spell)
 end)
 
 riposte:Callback(function(spell)
-    if player.buff("Riposte") then
+    if target.meleeRange then
+        if not spell:Castable(target) then
+            return
+        end
+
         if spell:Cast(target) then
             awful.alert(spell.name, spell.id)
             return
